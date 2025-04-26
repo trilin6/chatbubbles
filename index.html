@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">  <!-- iOS standalone mode  [oai_citation:7‡Apple Developer](https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html?utm_source=chatgpt.com) -->
+  <link rel="manifest" href="manifest.json">              <!-- PWA manifest  [oai_citation:8‡MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable?utm_source=chatgpt.com) -->
+  <link rel="apple-touch-icon" href="icon-192.png">        <!-- Home-screen icon  [oai_citation:9‡Johan Brook](https://johan.im/writings/ios-homescreen-web-app/?utm_source=chatgpt.com) -->
+  <title>Chat Bubble Renderer</title>
+  <style>
+    body { font-family: sans-serif; background: #f4f4f4; margin:0; }
+    .chat-container { padding: 10px; }
+    .bubble { max-width: 80%; margin:8px; padding:10px; border-radius:12px; position:relative; clear:both; }
+    .ee { background:#ececec; float:left; }
+    .ee::before {
+      content:""; position:absolute; left:-16px; top:12px;
+      border:8px solid transparent; border-right-color:#ececec;
+    }
+    .anna { background:#dcf8c6; float:right; }
+    .anna::before {
+      content:""; position:absolute; right:-16px; top:12px;
+      border:8px solid transparent; border-left-color:#dcf8c6;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container" id="chat"></div>
+  <script src="app.js"></script>
+</body>
+</html>
