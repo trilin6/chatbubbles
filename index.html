@@ -201,5 +201,27 @@
 
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
+<script>
+    function downloadAsImage() {
+    html2canvas(document.getElementById('root')).then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'transcript.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+  }
+
+  function downloadAsPDF() {
+    html2canvas(document.getElementById('root')).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jspdf.jsPDF();
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('transcript.pdf');
+    });
+  }
+</script>
 </body>
 </html>
