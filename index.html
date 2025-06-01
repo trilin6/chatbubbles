@@ -192,7 +192,7 @@
         <div className="chat-container">
           {transcript.map((msg, idx) => (
             <div key={idx} className={`bubble ${msg.speaker.toLowerCase()}`}>
-              <strong>{msg.speaker}</strong>: {msg.text}
+              <strong>{msg.speaker}:</strong> <p style={{ whiteSpace: 'pre-line' }}>{msg.text}</p>
             </div>
           ))}
         </div>
