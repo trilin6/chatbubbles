@@ -1,100 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Transcript</title>
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding: 10px;
-            background-color: #f0f0f0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .message-bubble {
-            padding: 10px 15px;
-            border-radius: 15px;
-            max-width: 80%;
-            word-wrap: break-word;
-        }
-        .message-bubble strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .message-bubble p {
-            white-space: pre-wrap;
-            margin: 0;
-        }
-        .left {
-            align-self: flex-start;
-            background-color: #e0e0e0;
-        }
-        .right {
-            align-self: flex-end;
-            background-color: #dcf8c6;
-        }
-        .buttons {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .buttons button {
-            margin: 0 10px;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <title>Chat Bubble Renderer</title>
+  <!-- Inline CSS for chat bubbles -->
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+      font-family: sans-serif;
+    }
+    .chat-container {
+      padding: 10px;
+    }
+    .bubble {
+      max-width: 80%;
+      margin: 8px 0;
+      padding: 10px 15px;
+      border-radius: 12px;
+      position: relative;
+      clear: both;
+      line-height: 1.4;
+    }
+    .ee {
+      background: #ececec;
+      float: left;
+    }
+    .ee::before {
+      content: "";
+      position: absolute;
+      top: 12px;
+      left: -16px;
+      border: 8px solid transparent;
+      border-right-color: #ececec;
+    }
+    .anna {
+      background: #dcf8c6;
+      float: right;
+    }
+    .anna::before {
+      content: "";
+      position: absolute;
+      top: 12px;
+      right: -16px;
+      border: 8px solid transparent;
+      border-left-color: #dcf8c6;
+    }
+    #root {
+      overflow-y: auto;
+      height: 100vh;
+    }
+  </style>
 </head>
 <body>
-    <div id="root"></div>
-    <div class="buttons">
-        <button onclick="downloadAsImage()">Download as Image</button>
-        <button onclick="downloadAsPDF()">Download as PDF</button>
-    </div>
-    <script>
-        const transcript = [
+  <div id="root"></div>
+  <!-- React and Babel via CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Your React code -->
+  <script type="text/babel">
+    const transcript = [
   { speaker: "EE", text: "Hi, I’m Aimee, your digital assistant, powered by AI 👋. I’m here to answer your questions. How can I help you today?" },
-  { speaker: "ANNA MAKAROVA-SICA", text: "Good afternoon, I’m contacting you in hopes of resolving some ongoing login issues with my account. The issue stems from the fact that I originally registered with a Russian email address. At some point in the past year, your company made the decision to block Yandex mail accounts—presumably in an attempt to sanction Russian entities. However, we are ordinary users (not Russian citizens, nor affiliated with the Russian government), and have been unfairly affected by this policy. As a result, I am unable to receive confirmation codes, authentication emails, or any other essential communications. Setting aside the broader issue of penalizing ordinary individuals, I have made several attempts to resolve this by updating my account email. I have contacted EE three times: twice over the phone and once in-store. Each time, I was assured the issue was resolved. I provided an alternative email address for both the login and contact email, and was told it would update within a few hours. It never has, and I continue to experience the same login problems. Frankly, I am appalled by the repeated incompetence I have encountered. All that needs to happen is a simple migration of my account’s contact and login email from @yandex.ru to @yandex.com. Generally, I have been very satisfied with EE and have my entire family on the plan. However, if I am once again led to believe the issue has been fixed only to find it is not, I will have no choice but to switch providers and share this experience widely. While the agents I have spoken to have been perfectly polite—and I appreciate that—I must reiterate that the level of operational failure here is astonishing, particularly for what is supposed to be the UK’s #1 network. I look forward to your prompt and effective resolution" },
+  { speaker: "ANNA MAKAROVA-SICA", text:
+    "Good afternoon, I’m contacting you in hopes of resolving some ongoing login issues with my account. The issue stems from the fact that I originally registered with a Russian email address. At some point in the past year, your company made the decision to block Yandex mail accounts—presumably in an attempt to sanction Russian entities. However, we are ordinary users (not Russian citizens, nor affiliated with the Russian government), and have been unfairly affected by this policy. As a result, I am unable to receive confirmation codes, authentication emails, or any other essential communications." + "\n\n" +
+    "Setting aside the broader issue of penalizing ordinary individuals, I have made several attempts to resolve this by updating my account email. I have contacted EE three times: twice over the phone and once in-store. Each time, I was assured the issue was resolved. I provided an alternative email address for both the login and contact email, and was told it would update within a few hours. It never has, and I continue to experience the same login problems." + "\n\n" +
+    "Frankly, I am appalled by the repeated incompetence I have encountered. All that needs to happen is a simple migration of my account’s contact and login email from @yandex.ru to @yandex.com. Generally, I have been very satisfied with EE and have my entire family on the plan. However, if I am once again led to believe the issue has been fixed only to find it is not, I will have no choice but to switch providers and share this experience widely. While the agents I have spoken to have been perfectly polite—and I appreciate that—I must reiterate that the level of operational failure here is astonishing, particularly for what is supposed to be the UK’s #1 network. I look forward to your prompt and effective resolution"
+  },
   { speaker: "EE", text: "I’ll get you through to one of our EE Guides who'll be able to help, they are available until 10.30pm." },
-  { speaker: "EE", text: "Hello, you’re through Ujjwal, your EE Billing Messaging Guide. Thank you for contacting us via messaging. I hope you're doing good. I’m truly sorry for the frustration and inconvenience you’ve experienced with your account login issues. It’s understandably upsetting to face repeated obstacles despite your efforts to resolve this, especially after being assured multiple times that the issue was fixed. I hear how important this is to you, particularly as a loyal customer with your family on the plan, and I appreciate your patience while navigating this challenge. Just to confirm, have you tried to uninstall and reinstall the app on your end after we have tried to resolve your issue?" },
-  { speaker: "ANNA MAKAROVA-SICA", text: "Good afternoon, While I remain somewhat sceptical of your assurances at this point, I am willing to give you one final opportunity to resolve this. That said, I must ask: how exactly would uninstalling and reinstalling your application have anything whatsoever to do with migrating a login email from one domain to another? How are these two issues even remotely linked? I’m currently just a couple of weeks away from completing my computer science degree, and unless the curriculum missed something critical, I’m fairly confident this isn’t how email migrations work. Further, I presume reinstalling the application requires me to login again, which I will not be able to do - because once again, the issue with account has not been resolved" },
+  { speaker: "EE", text:
+    "Hello, you’re through Ujjwal, your EE Billing Messaging Guide. Thank you for contacting us via messaging. I hope you're doing good. I’m truly sorry for the frustration and inconvenience you’ve experienced with your account login issues. It’s understandably upsetting to face repeated obstacles despite your efforts to resolve this, especially after being assured multiple times that the issue was fixed." + "\n\n" +
+    "I hear how important this is to you, particularly as a loyal customer with your family on the plan, and I appreciate your patience while navigating this challenge. Just to confirm, have you tried to uninstall and reinstall the app on your end after we have tried to resolve your issue?"
+  },
+  { speaker: "ANNA MAKAROVA-SICA", text:
+    "Good afternoon, While I remain somewhat sceptical of your assurances at this point, I am willing to give you one final opportunity to resolve this. That said, I must ask: how exactly would uninstalling and reinstalling your application have anything whatsoever to do with migrating a login email from one domain to another? How are these two issues even remotely linked?" + "\n\n" +
+    "I’m currently just a couple of weeks away from completing my computer science degree, and unless the curriculum missed something critical, I’m fairly confident this isn’t how email migrations work. Further, I presume reinstalling the application requires me to login again, which I will not be able to do - because once again, the issue with account has not been resolved"
+  },
   { speaker: "EE", text: "I am sorry for the hassle you have faced so far, and I am assuring you that I will help you here today. Just to confirm, you want to change your email address on your EE profile from makanna@yamdex.ru to makanna@yamdex.com. Right?" },
-  { speaker: "ANNA MAKAROVA-SICA", text: "It’s Yandex, not Yamdex—but yes, that part is correct. However, both the contact and login email addresses need to be changed. They are updated independently; changing one does not automatically update the other. You’ll need to propagate the change for both. If you’re unsure how to do this or what the distinction is, please check with a colleague. I’ve already run into this issue twice, where the support agent clearly didn’t understand the difference and incorrectly assured me the issue was resolved when it wasn’t." },
+  { speaker: "ANNA MAKAROVA-SICA", text:
+    "It’s Yandex, not Yamdex—but yes, that part is correct. However, both the contact and login email addresses need to be changed. They are updated independently; changing one does not automatically update the other." + "\n\n" +
+    "You’ll need to propagate the change for both. If you’re unsure how to do this or what the distinction is, please check with a colleague. I’ve already run into this issue twice, where the support agent clearly didn’t understand the difference and incorrectly assured me the issue was resolved when it wasn’t."
+  },
   { speaker: "ANNA MAKAROVA-SICA", text: "I’ve just received a text message containing a pin that I meant to give to the advisor. I’m speaking with an EE. Would this be your request? And should I give this pin to you now?" },
   { speaker: "EE", text: "Anna, Please do not worry, I will check your account thoroughly and will see what changes need to be done. Can you provide the one time pin you received via text?" },
   { speaker: "ANNA MAKAROVA-SICA", text: "Certainly, it’s REDACTED_CODE" },
   { speaker: "EE", text: "Thanks for confirming. Anna, Since you are facing this issue for so long. I have raised the complaint for you and here is the case id: 26338002" },
-  { speaker: "ANNA MAKAROVA-SICA", text: "Right—and in what sort of timeframe can I expect a response? Also, I’d like to enquire about the service status of the SIM with the number ending in 1123 on my account. I’m currently at postcode DH1 4PS, and I’ve had no mobile data for the past two days. The EE website mentions issues in the area, but the page that’s supposed to give more detail is broken—so I’m completely in the dark here." },
-  { speaker: "ANNA MAKAROVA-SICA", text: "Oh and most importantly how will I be contacted? Because if the case agent attempts to reach out via the email currently on the accounts there is a very high possibility that I will not receive said correspondence" },
-  { speaker: "EE", text: "Thanks for bringing this to our attention as well. Anna, I would like to inform you that for any sort of contact our team contact customer via call directly or text. So No need to worry at all. Also, I can see that on your EE profile your wrong email is setup and I am updating that to makanna@yandex.com." },
-  { speaker: "EE", text: "Sounds good?" },
-  { speaker: "EE", text: "Can you provide the one time pin you received via correct email?" },
-  { speaker: "ANNA MAKAROVA-SICA", text: "That’s all well and good, but I’ve now been given these exact assurances three separate times—and each time, nothing has been resolved. To be absolutely clear: the login email and the profile email are not the same thing. Updating only the profile email will not fix the issue. I need your explicit confirmation that you understand this distinction, and that both addresses must be updated for the problem to be properly resolved. Additionally, I want confirmation that the case ID you have provided correctly and thoroughly reflects the actual issue I’m facing—not just a vague reference to an email update. Please provide adequate assurance regarding both points." },
-  { speaker: "ANNA MAKAROVA-SICA", text: "Now, the one time pin received at makanna@yandex.com is REDACTED_CODE" },
+  { speaker: "ANNA MAKAROVA-SICA", text:
+    "Right—and in what sort of timeframe can I expect a response? Also, I’d like to enquire about the service status of the SIM with the number ending in 1123 on my account. I’m currently at postcode DH1 4PS, and I’ve had no mobile data for the past two days. The EE website mentions issues in the area, but the page that’s supposed to give more detail is broken—so I’m completely in the dark here." + "\n\n" +
+    "Oh and most importantly how will I be contacted? Because if the case agent attempts to reach out via the email currently on the accounts there is a very high possibility that I will not receive said correspondence"
+  },
+  { speaker: "EE", text:
+    "Thanks for bringing this to our attention as well. Anna, I would like to inform you that for any sort of contact our team contact customer via call directly or text. So No need to worry at all. Also, I can see that on your EE profile your wrong email is setup and I am updating that to makanna@yandex.com." + "\n\n" +
+    "Sounds good?" + "\n\n" +
+    "Can you provide the one time pin you received via correct email?"
+  },
+  { speaker: "ANNA MAKAROVA-SICA", text:
+    "That’s all well and good, but I’ve now been given these exact assurances three separate times—and each time, nothing has been resolved. To be absolutely clear: the login email and the profile email are not the same thing. Updating only the profile email will not fix the issue. I need your explicit confirmation that you understand this distinction, and that both addresses must be updated for the problem to be properly resolved." + "\n\n" +
+    "Additionally, I want confirmation that the case ID you have provided correctly and thoroughly reflects the actual issue I’m facing—not just a vague reference to an email update. Please provide adequate assurance regarding both points." + "\n\n" +
+    "Now, the one time pin received at makanna@yandex.com is REDACTED_CODE"
+  },
   { speaker: "EE", text: "Anna, I certainly understand your frustration and this is the time I am assuring you that I am updating in your EE profile which will ensure you will be able to login. Please help me with the one time pin you have received?" },
   { speaker: "EE", text: "Yes Anna, As a proof you have received the one time pin to your correct email address. Right?" },
-  { speaker: "ANNA MAKAROVA-SICA", text: "I appreciate your efforts, but it’s clear there is still a misunderstanding. Yes, I have now received a PIN at the new .com address. However, this only confirms that the profile email has been updated—not the login email. To be clear: • Authentication emails and login tasks are routed through the login email, not the profile email. • Updating the profile email alone does not resolve the issue. • If the login email remains unchanged, I will continue to experience login problems, regardless of the profile update. As I have already mentioned, if there is any uncertainty about the distinction between the login email and the profile email, I would appreciate it if you could consult a colleague to confirm. These two fields are distinct and must be updated separately; changing one does not update the other. Could you please confirm for me: 1. That you understand the difference between the login email and the profile email. 2. That you acknowledge both must be updated to fully resolve the issue. Additionally, could you also confirm exactly what information has been recorded in the case ID for escalation to management, and whether it accurately reflects the true nature of the problem—not simply a “profile email update.” Thank you for your help. I look forward to your reply." },
-  { speaker: "EE", text: "Anna, I appreciate how nicely you elaborate me your concern and I understand each and every part of your concern. However, Yes you are correct with login and profile email. But I would like to inform you that why I am focusing on profile email is because from our side how process works let me share you that. Let's suppose if your login email is showing correct but your profile email is not same like login email it will clash and you will not receive the one time pin to login. So from our end EE iD profile email is not correct. It will not let you logged in. So I have updated both login and profile email address for you now." },
-  { speaker: "EE", text: "And, I would suggest you to please uninstall your EE app once and reinstall it again and restart your device and try to login with your correct email now." },
-  { speaker: "EE", text: "Can you try once?" },
+  { speaker: "ANNA MAKAROVA-SICA", text:
+    "I appreciate your efforts, but it’s clear there is still a misunderstanding. Yes, I have now received a PIN at the new .com address. However, this only confirms that the profile email has been updated—not the login email. To be clear:" + "\n\n" +
+    "• Authentication emails and login tasks are routed through the login email, not the profile email." + "\n\n" +
+    "• Updating the profile email alone does not resolve the issue." + "\n\n" +
+    "• If the login email remains unchanged, I will continue to experience login problems, regardless of the profile update." + "\n\n" +
+    "As I have already mentioned, if there is any uncertainty about the distinction between the login email and the profile email, I would appreciate it if you could consult a colleague to confirm. These two fields are distinct and must be updated separately; changing one does not update the other." + "\n\n" +
+    "Could you please confirm for me:" + "\n\n" +
+    "1. That you understand the difference between the login email and the profile email." + "\n\n" +
+    "2. That you acknowledge both must be updated to fully resolve the issue." + "\n\n" +
+    "Additionally, could you also confirm exactly what information has been recorded in the case ID for escalation to management, and whether it accurately reflects the true nature of the problem—not simply a “profile email update.” Thank you for your help. I look forward to your reply."
+  },
+  { speaker: "EE", text:
+    "Anna, I appreciate how nicely you elaborate me your concern and I understand each and every part of your concern. However, Yes you are correct with login and profile email. But I would like to inform you that why I am focusing on profile email is because from our side how process works let me share you that." + "\n\n" +
+    "Let's suppose if your login email is showing correct but your profile email is not same like login email it will clash and you will not receive the one time pin to login. So from our end EE iD profile email is not correct. It will not let you logged in. So I have updated both login and profile email address for you now." + "\n\n" +
+    "And, I would suggest you to please uninstall your EE app once and reinstall it again and restart your device and try to login with your correct email now." + "\n\n" +
+    "Can you try once?"
+  },
   { speaker: "ANNA MAKAROVA-SICA", text: "Alright, give me a brief moment. I’ll perform the steps in the order you suggested and hopefully I’ll be able to just send a subsequent message telling me whether it was successful or not." },
   { speaker: "EE", text: "Of course! Please let me know if you find any challenge. Also, can you check if your email address is updated on your EE personal information." },
   { speaker: "ANNA MAKAROVA-SICA", text: "Unfortunately I think I have an old password saved in my password manager should the forgot your password flow work with my correct .com email now also" },
   { speaker: "EE", text: "Yes You can change your password once and check if you get the one time pin over your correct email address or not?" },
-  { speaker: "ANNA MAKAROVA-SICA", text: "Right — I can confirm that I received the password reset PIN at the yandex.com email address. However, when I input the PIN on the EE website, I am met with a message stating: “We couldn’t find an account to match your User ID.” This is exactly the point I reached during my previous attempts to resolve this issue. I believe a case was opened at the store at the time, but ultimately nothing was resolved — which is why I am now contacting you again for a third time. To be clear, this “User ID not found” error is where the process currently breaks down, just as it did before." },
-  { speaker: "ANNA MAKAROVA-SICA", text: "The last time that this happened I was assured by the customer service agent the process simply takes 24 to 36 hours or some similar timeframe and after this timeframe it passed this error message would resolve itself automatically which did not occur obviously" },
+  { speaker: "ANNA MAKAROVA-SICA", text:
+    "Right — I can confirm that I received the password reset PIN at the yandex.com email address. However, when I input the PIN on the EE website, I am met with a message stating: “We couldn’t find an account to match your User ID.” This is exactly the point I reached during my previous attempts to resolve this issue. I believe a case was opened at the store at the time, but ultimately nothing was resolved — which is why I am now contacting you again for a third time. To be clear, this “User ID not found” error is where the process currently breaks down, just as it did before." + "\n\n" +
+    "The last time that this happened I was assured by the customer service agent the process simply takes 24 to 36 hours or some similar timeframe and after this timeframe it passed this error message would resolve itself automatically which did not occur obviously"
+  },
   { speaker: "EE", text: "Anna, Yes that is correct when we update the email address on our end it usually takes 24-48hrs to sync on your end. However, just to confirm, last time were you getting the one time pin or reset pin over your correct email address? Or this is the first time you are noticing it correct?" },
   { speaker: "ANNA MAKAROVA-SICA", text: "If you just give me a couple minutes, I’ll confirm how to which email the previous ones were arriving" },
   { speaker: "EE", text: "Of course! Can you check and let me know?" },
@@ -124,7 +163,10 @@
   { speaker: "EE", text: "Anna, there shouldn't be any issue. I am right here with you. Please let's try it once." },
   { speaker: "ANNA MAKAROVA-SICA", text: "alright, well, I’m attempting it now." },
   { speaker: "EE", text: "Thank you so much" },
-  { speaker: "ANNA MAKAROVA-SICA", text: "Right, Nicely completed the signup using the same mobile number and the email address of the original account. I’m just navigating through the new profile and seeing whether any SIM cards or numbers or plans have carried over. Upon an initial inspection it doesn’t seem like they have like on a completely blank profile. I assume you’re gonna tell me now to sort of manually link all my plans to this account. I would like to double check whether like everything from the account will be carried over such as for being a VIP customer I was upgraded to unlimited data and the add-ons all these various different things that are specific to that account will they carry over if you just sort of pop a new Sim into this account? How does it work?" },
+  { speaker: "ANNA MAKAROVA-SICA", text:
+    "Right, Nicely completed the signup using the same mobile number and the email address of the original account. I’m just navigating through the new profile and seeing whether any SIM cards or numbers or plans have carried over. Upon an initial inspection it doesn’t seem like they have like on a completely blank profile." + "\n\n" +
+    "I assume you’re gonna tell me now to sort of manually link all my plans to this account. I would like to double check whether like everything from the account will be carried over such as for being a VIP customer I was upgraded to unlimited data and the add-ons all these various different things that are specific to that account will they carry over if you just sort of pop a new Sim into this account? How does it work?"
+  },
   { speaker: "EE", text: "Anna, it is the same account and I assure you that you have all the same number, plans and discounts on your account. We have just registered you." },
   { speaker: "ANNA MAKAROVA-SICA", text: "Well logging into this account through your website tells a very different story. Would you like me to try logging in again from a different session? Because at the moment this account does not have any bills? Any plans? Any numbers? Nothing it’s completely empty. I can assure you" },
   { speaker: "EE", text: "Yes, please try again once." },
@@ -132,71 +174,28 @@
   { speaker: "EE", text: "Allow me to check this for you. Can I please know the email you used to register?" },
   { speaker: "ANNA MAKAROVA-SICA", text: "makanna@yandex.com" },
   { speaker: "EE", text: "Anna, I can see that everything is fine on your account and your email address also shows the same." },
-  { speaker: "ANNA MAKAROVA-SICA", text: "Right, I’m not sure how many different ways I can tell you that this is absolutely definitively not the case. I can login to a new account you’ve created using makanna@yandex.com This account once again I reiterate has nothing in it. It is empty. My EE app is still currently signed in to the .ru account which has all of my bills and SIM cards and phone numbers. These are two separate accounts." },
-  { speaker: "ANNA MAKAROVA-SICA", text: "I’m afraid your solution has had precisely the effect that I feared it would have and now the accounts are in a worse state than they were when I initially reached out so I can’t login still to my original account because emails do not get sent to the .ru domain now the .com email is linked to a new completely unrelated account which has none of my things in it And it’s just a complete mess" },
+  { speaker: "ANNA MAKAROVA-SICA", text:
+    "Right, I’m not sure how many different ways I can tell you that this is absolutely definitively not the case. I can login to a new account you’ve created using makanna@yandex.com This account once again I reiterate has nothing in it. It is empty." + "\n\n" +
+    "My EE app is still currently signed in to the .ru account which has all of my bills and SIM cards and phone numbers. These are two separate accounts." + "\n\n" +
+    "I’m afraid your solution has had precisely the effect that I feared it would have and now the accounts are in a worse state than they were when I initially reached out so I can’t login still to my original account because once again, the issue with account has not been resolved"
+  },
   { speaker: "EE", text: "Anna, we have tried everything over here and exhausted all my resources. I assure you that there is nothing wrong in your account. Everything is the same on our end. I'll request you to please once connect with our Technical Team by dialling 150 and I'm sure they will get this sorted for you. If you reach out to them, they will be able to assist you in resolving the issue." },
   { speaker: "ANNA MAKAROVA-SICA", text: "You know I really am truly at a complete and utter loss for words. This experience has managed to somehow be worse than the previous three combined. I will not be contacting any further technical teams and I will be taking my business elsewhere. The quality of your customer service is appalling. It is truly the worst I’ve experienced in 20 years of life in the UK" }
-        ];
+];
 
-        const ChatApp = () => {
-            return (
-                <div className="chat-container">
-                    {transcript.map((message, index) => (
-                        <div key={index} className={`message-bubble ${message.speaker === 'EE' ? 'left' : 'right'}`}>
-                            <strong>{message.speaker}:</strong>
-                            <p>{message.text}</p>
-                        </div>
-                    ))}
-                </div>
-            );
-        };
+    function App() {
+      return (
+        <div className="chat-container">
+          {transcript.map((msg, idx) => (
+            <div key={idx} className={`bubble ${msg.speaker.toLowerCase()}`}>
+              <strong>{msg.speaker}</strong>: {msg.text}
+            </div>
+          ))}
+        </div>
+      );
+    }
 
-        ReactDOM.render(<ChatApp />, document.getElementById('root'));
-    </script>
-    <script>
-        const { jsPDF } = window.jspdf;
-
-        function captureFullContent(callback) {
-            const root = document.getElementById('root');
-            const clone = root.cloneNode(true);
-            document.body.appendChild(clone);
-            clone.style.position = 'absolute';
-            clone.style.left = '-9999px';
-            clone.style.width = `${root.offsetWidth}px`;
-            clone.style.height = 'auto';
-            clone.style.overflow = 'visible';
-            setTimeout(() => { // Give time for rendering
-                html2canvas(clone, { scale: 2 }).then(canvas => {
-                    document.body.removeChild(clone);
-                    callback(canvas);
-                });
-            }, 500);
-        }
-
-        function downloadAsImage() {
-            captureFullContent(canvas => {
-                const link = document.createElement('a');
-                link.download = 'transcript.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            });
-        }
-
-        function downloadAsPDF() {
-            captureFullContent(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-                const imgWidth = canvas.width;
-                const imgHeight = canvas.height;
-                const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-                const imgX = (pdfWidth - imgWidth * ratio) / 2;
-                const imgY = 0;
-                pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-                pdf.save('transcript.pdf');
-            });
-        }
-    </script>
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
 </body>
 </html>
